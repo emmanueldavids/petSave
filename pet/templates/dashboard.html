@@ -5,7 +5,7 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Corona Admin</title>
+    <title>PetSave</title>
     <!-- plugins:css -->
     <link rel="stylesheet" href="{% static 'assets/vendors/mdi/css/materialdesignicons.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/vendors/css/vendor.bundle.base.css' %}">
@@ -21,7 +21,7 @@
     <!-- Layout styles -->
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
     <!-- End layout styles -->
-    <link rel="shortcut icon" href="{% static 'assets/images/favicon.png' %}" />
+    <link rel="shortcut icon" href="{% static 'assets/images/logo2.jpg' %}" />
   </head>
   <body>
     <div class="container-scroller">
@@ -144,7 +144,7 @@
                     <div class="row">
                       <div class="col-8 col-sm-12 col-xl-8 my-auto">
                         <div class="d-flex d-sm-block d-md-flex align-items-center">
-                          <h2 class="mb-0">$100</h2>
+                          <h2 class="mb-0">${{ wallet_balance }}</h2>
                           <p class="text-success ml-2 mb-0 font-weight-medium"></p>
                         </div>
                         <h6 class="text-muted font-weight-normal"></h6>
@@ -261,8 +261,8 @@
             <div class="pagination">
               <span class="step-links">
                 {% if page_obj.has_previous %}
-                  <a href="?page=1">&laquo; first</a>
-                  <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                  <a href="?page=1">&laquo; First</a>
+                  <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
                 {% endif %}
     
                 <span class="current">
@@ -270,8 +270,8 @@
                 </span>
     
                 {% if page_obj.has_next %}
-                  <a href="?page={{ page_obj.next_page_number }}">next</a>
-                  <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                  <a href="?page={{ page_obj.next_page_number }}"> Next </a>
+                  <a href="?page={{ page_obj.paginator.num_pages }}"> Last &raquo;</a>
                 {% endif %}
               </span>
             </div>
