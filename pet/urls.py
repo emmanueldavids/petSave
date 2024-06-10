@@ -1,5 +1,9 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
+from rest_framework.routers import DefaultRouter
+from django.urls import path
+
+
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -13,5 +17,5 @@ urlpatterns = [
     # path('logout', views.logout, name='logout'),
     path('dashboard', views.dashboard, name='dashboard'),
     path('donate', views.donate, name='donate'),
-    # path('delete/<int:task_id>/', views.delete_task, name='delete_task'),
+
 ]

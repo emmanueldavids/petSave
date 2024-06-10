@@ -7,9 +7,6 @@ from .models import Donation
 from django.core.paginator import Paginator
 
 
-
-
-
 from django.contrib import messages
 
 
@@ -57,9 +54,9 @@ def dashboard(request):
     }
 
     return render(request, 'dashboard.html', context)
-    return render(request, 'dashboard.html', {'page_obj': page_obj})
+    # return render(request, 'dashboard.html', {'page_obj': page_obj})
 
-    return render(request, 'dashboard.html', {'donations': donations})
+    # return render(request, 'dashboard.html', {'donations': donations})
 
 
 def donate(request):
@@ -108,3 +105,4 @@ def login(request):
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
+
