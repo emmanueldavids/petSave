@@ -5,13 +5,12 @@ from .forms import SignUpForm
 from .forms import DonationForm
 from .models import Donation
 from django.core.paginator import Paginator
-
+from myapi.models import Transaction
 
 from django.contrib import messages
 
 
 def index(request):
-    # tasks = Task.objects.all()
     return render(request, 'index.html')
 
 
@@ -29,34 +28,25 @@ def logout(request):
         return redirect('index.html')
 
 
-# def dashboard(request):
-#     donations = Donation.objects.all().order_by('id')
-#     paginator = Paginator(dashboard, 10)  # Show 10 donations per page
-
-#     page_number = request.GET.get('page')
-#     page_obj = paginator.get_page(page_number)
-
-#     context = {
-#         'page_obj': page_obj,
-#     }
-
-
-#     return render(request, 'dashboard.html', {'donations': donations}, {'page_obj':page_obj})
 def dashboard(request):
     donations = Donation.objects.all() # Order by 'id' field to ensure consistency
-    paginator = Paginator(donations, 5)  # Show 10 donations per page
+    paginator = Paginator(donations, 5)  # Show 5 donations per page
 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     context = {
         'page_obj': page_obj,
+        #  'money': balance,
     }
-
+    user = request.user
+    transactions = Transaction.objects.filter(user=user)
+    balance = sum(transaction.amount for transaction in transactions)
+    
+    context1 = {
+        'money': balance
+    }
     return render(request, 'dashboard.html', context)
-    # return render(request, 'dashboard.html', {'page_obj': page_obj})
-
-    # return render(request, 'dashboard.html', {'donations': donations})
 
 
 def donate(request):
@@ -101,8 +91,41 @@ def login(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 auth_login(request, user)
-                return redirect('donate')
+                return redirect('dashboard')
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
+# #API
+# from rest_framework import viewsets
+# from rest_framework.decorators import action
+# from rest_framework.response import Response
+# from django.contrib.auth.models import User
+# from myapi.models import UserProfile
+# from myapi.serializers import UserSerializer, UserProfileSerializer
+# from django.contrib.auth.decorators import login_required
+
+
+
+# class UserViewSet(viewsets.ModelViewSet):
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
+
+#     @action(detail=True, methods=['post'])
+#     def send_money(self, request, pk=None):
+#         user = self.get_object()
+#         amount = request.data.get('amount')
+#         try:
+#             amount = float(amount)
+#         except ValueError:
+#             return Response({"error": "Invalid amount"}, status=400)
+
+#         user.profile.wallet_balance += amount
+#         user.profile.save()
+#         return Response({"status": "money sent", "new_balance": user.profile.wallet_balance})
+
+#     @login_required
+#     def wallet_view(request):
+#         user_profile = UserProfile.objects.get(user=request.user)
+#         wallet_balance = user_profile.wallet_balance
+#         return render(request, 'wallet.html', {'wallet_balance': wallet_balance})
