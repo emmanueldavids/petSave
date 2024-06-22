@@ -17,3 +17,9 @@ class Donation(models.Model):
         return f"Donation by {self.full_name}"
     # amount = models.DecimalField(max_digits=10, decimal_places=2)
 
+# class UserProfile(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)
+#     wallet_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+#     def __str__(self):
+#         return f'{self.user.username} Profile'

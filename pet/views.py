@@ -29,22 +29,62 @@ def logout(request):
 
 
 def dashboard(request):
+    user = request.user
+
+    form = DonationForm()
+
+    # Handle donation form submission
+    if request.method == 'POST':
+        form = DonationForm(request.POST)
+        if form.is_valid():
+            amount = form.cleaned_data['amount']
+        # Calculate user's balance
+            transactions = Transaction.objects.filter(user=user)
+            previous_balance = sum(transaction.amount for transaction in transactions)
+            new_balance = previous_balance - amount
+            # donated_amount = amount - balance
+
+            # Ensure user has sufficient balance
+            if new_balance < 0:
+                context = {
+                    'form': form,
+                    'page_obj': page_obj,
+                    'balance': previous_balance,
+                    'error_message': 'Insufficient funds',
+                }
+                return render(request, 'dashboard.html', context)
+
+                # Deduct amount from user's wallet balance
+                user.balance -= amount
+                user.save()
+
+
+            # Create a new donation record
+            Donation.objects.create(user=user, amount=amount)
+            # Create a new transaction record (negative to indicate deduction)
+            Transaction.objects.create(user=user, amount=-amount)
+
+            return redirect('dashboard')  # Redirect to refresh the page
+
     donations = Donation.objects.all() # Order by 'id' field to ensure consistency
     paginator = Paginator(donations, 5)  # Show 5 donations per page
+
+    # Calculate user's balance
+    transactions = Transaction.objects.filter(user=user)
+    balance = sum(transaction.amount for transaction in transactions)
 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    user = request.user
+
+
     context = {
         'page_obj': page_obj,
-        #  'money': balance,
-    }
-    user = request.user
-    transactions = Transaction.objects.filter(user=user)
-    balance = sum(transaction.amount for transaction in transactions)
-    
-    context1 = {
-        'money': balance
+        'money': balance,
+        'previous_balance': balance + form['amount'].value() if 'amount' in form.data else balance,
+        'donated_amount': form['amount'].value() if 'amount' in form.data else 0,
+        # 'new_balance': new_balance,
     }
     return render(request, 'dashboard.html', context)
 
@@ -55,14 +95,18 @@ def donate(request):
         if form.is_valid():
             form.save()  # This will save the form data to the database
             # messages.success(request, "Account was created for " + email)
+
+            # if user_profile.wallet_balance >= amount:
+            #     user_profile.wallet_balance -= amount
+            #     user_profile.save()
+            #     return Response({'status': 'Money sent successfully!'})
+            # else:
+            #     return Response({'error': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
             return redirect('dashboard')  # Redirect to a success page or wherever you want
     else:
         form = DonationForm()
     return render(request, 'donate.html', {'form': form})
 
-
-# def donation_list(request):
-    
 
 def register(request):
     if request.method == 'POST':
@@ -95,37 +139,3 @@ def login(request):
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
-
-# #API
-# from rest_framework import viewsets
-# from rest_framework.decorators import action
-# from rest_framework.response import Response
-# from django.contrib.auth.models import User
-# from myapi.models import UserProfile
-# from myapi.serializers import UserSerializer, UserProfileSerializer
-# from django.contrib.auth.decorators import login_required
-
-
-
-# class UserViewSet(viewsets.ModelViewSet):
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-
-#     @action(detail=True, methods=['post'])
-#     def send_money(self, request, pk=None):
-#         user = self.get_object()
-#         amount = request.data.get('amount')
-#         try:
-#             amount = float(amount)
-#         except ValueError:
-#             return Response({"error": "Invalid amount"}, status=400)
-
-#         user.profile.wallet_balance += amount
-#         user.profile.save()
-#         return Response({"status": "money sent", "new_balance": user.profile.wallet_balance})
-
-#     @login_required
-#     def wallet_view(request):
-#         user_profile = UserProfile.objects.get(user=request.user)
-#         wallet_balance = user_profile.wallet_balance
-#         return render(request, 'wallet.html', {'wallet_balance': wallet_balance})
